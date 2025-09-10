@@ -1,0 +1,224 @@
+:root {
+    /* define color variables for easy reuse */
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --accent-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+}
+
+* {
+    /* reset default margins and paddings, set box-sizing */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* set default font */
+}
+
+body {
+    background-color: #f5f7fa; /* light background color */
+    color: #333; /* text color */
+    line-height: 1.6; /* spacing between lines */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px; /* limit width for large screens */
+    margin: 0 auto; /* center container */
+    padding: 20px; /* space inside container */
+}
+
+header {
+    /* header styling with gradient background and shadow */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 2rem 0;
+    text-align: center;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem; /* bigger title */
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.main-content {
+    /* layout styling with flexbox */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.form-section, .display-section {
+    /* sections styling */
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-color);
+}
+
+.form-group {
+    margin-bottom: 1.2rem; /* space between fields */
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.error {
+    color: var(--accent-color);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+    display: none; /* hide errors initially */
+}
+
+button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-edit {
+    background-color: var(--warning-color);
+    color: white;
+    margin-right: 0.5rem;
+}
+
+.btn-edit:hover {
+    background-color: #e67e22;
+}
+
+.btn-delete {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.students-table th, 
+.students-table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.students-table th {
+    background-color: var(--light-color);
+    font-weight: 600;
+}
+
+.students-table tr:hover {
+    background-color: rgba(52, 152, 219, 0.05); /* highlight on hover */
+}
+
+.action-buttons {
+    display: flex;
+}
+
+.scroll-container {
+    max-height: 400px;
+    overflow-y: auto; /* enable scroll when needed */
+    margin-top: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+}
+
+/* Responsive styles for mobile and tablet */
+@media (max-width: 640px) {
+    header h1 {
+        font-size: 2rem;
+    }
+    header p {
+        font-size: 0.9rem;
+    }
+    .main-content {
+        flex-direction: column;
+    }
+    .action-buttons {
+        flex-direction: column;
+    }
+    .btn-edit, .btn-delete {
+        margin-bottom: 0.5rem;
+        margin-right: 0;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .form-section, .display-section {
+        min-width: 100%;
+    }
+}
+
+@media (min-width: 1025px) {
+    .form-section {
+        flex: 1;
+    }
+    .display-section {
+        flex: 2;
+    }
+}
