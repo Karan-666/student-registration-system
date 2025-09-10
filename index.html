@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- character encoding setup -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- makes it mobile-friendly -->
+    <title>Student Registration System</title> <!-- page title shown in the browser tab -->
+    <link rel="stylesheet" href="./style.css"> <!-- linking the CSS file for styles -->
+</head>
+<body>
+    <div class="container"> <!-- main container to keep everything centered -->
+        
+        <header> <!-- header section with title and description -->
+            <h1>Student Registration System</h1> <!-- main heading -->
+            <p>Register and manage student information with ease. Add, edit, or delete student records with this intuitive system.</p> <!-- short description -->
+        </header>
+        
+        <div class="main-content"> <!-- content area containing form and list -->
+            
+            <section class="form-section"> <!-- form section for adding new student -->
+                <h2 class="section-title">Register New Student</h2> <!-- form title -->
+                <form id="studentForm"> <!-- form tag to take input -->
+                    
+                    <!-- Name input field -->
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label> <!-- label for name input -->
+                        <input type="text" id="studentName" placeholder="Enter full name"> <!-- input box -->
+                        <div class="error" id="nameError">Please enter a valid name (letters only)</div> <!-- error message -->
+                    </div>
+                    
+                    <!-- Student ID input field -->
+                    <div class="form-group">
+                        <label for="studentId">Student ID</label>
+                        <input type="text" id="studentId" placeholder="Enter student ID">
+                        <div class="error" id="idError">Please enter a valid ID (numbers only)</div>
+                    </div>
+                    
+                    <!-- Email input field -->
+                    <div class="form-group">
+                        <label for="email">Email ID</label>
+                        <input type="email" id="email" placeholder="Enter email address">
+                        <div class="error" id="emailError">Please enter a valid email address</div>
+                    </div>
+                    
+                    <!-- Contact number input field -->
+                    <div class="form-group">
+                        <label for="contact">Contact Number</label>
+                        <input type="text" id="contact" placeholder="Enter contact number">
+                        <div class="error" id="contactError">Please enter a valid 10-digit contact number</div>
+                    </div>
+                    
+                    <!-- Submit button -->
+                    <button type="submit" class="btn-primary">Register Student</button>
+                </form>
+            </section>
+            
+            <section class="display-section"> <!-- section to show registered students -->
+                <h2 class="section-title">Registered Students</h2>
+                <div class="scroll-container" id="studentsContainer"> <!-- container for scrolling -->
+                    <table class="students-table"> <!-- table to display students -->
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Student ID</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsList">
+                            <!-- student records will appear here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+        </div>
+    </div>
+
+    <script src="./App.js"></script> <!-- link to JavaScript file -->
+</body>
+</html>
