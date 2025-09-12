@@ -86,21 +86,23 @@ window.onload = function () {
   studentForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const isFormValid = checkIfNotEmpty();
+    const isFormValid = validateForm();
     if (!isFormValid) {
       // If the form is not valid, stop the function right here.
       return;
     }
 
     const idValue = studentIdInput.value;
-    if (isIdDuplicate(idValue)) {
-      alert("Error: A student with this ID already exists!");
-      return; // Stop the function
-    }
 
     if (isEditing) {
       // --- LOGIC FOR UPDATING A STUDENT ---
       // Find the student in the array and update their details
+
+      // Check for a duplicate ID ONLY if the ID has been changed to one that already exists
+      if (idValue !== studentIdToEdit && isIdDuplicate(idValue)) {
+        alert("Error: A student with this ID already exists!");
+        return;
+      }
 
       students = students.map(function (student) {
         if (student.id === studentIdToEdit) {
@@ -121,6 +123,11 @@ window.onload = function () {
       studentIdToEdit = null;
       submitButton.textContent = "Register Student";
     } else {
+      if (isIdDuplicate(idValue)) {
+        alert("Error: A student with this ID already exists!");
+        return;
+      }
+
       // --- LOGIC FOR ADDING A NEW STUDENT (old code) ---
       const newStudent = {
         name: studentNameInput.value,
@@ -134,6 +141,7 @@ window.onload = function () {
     saveStudentsToStorage(students);
     displayStudents();
     studentForm.reset();
+    updateScrollbar();
   });
 
   //  Add listener for delete or edit clicks on the table ---
@@ -147,6 +155,7 @@ window.onload = function () {
         });
         saveStudentsToStorage(students);
         displayStudents();
+        updateScrollbar();
       }
     }
 
@@ -173,38 +182,55 @@ window.onload = function () {
     }
   });
 
-  function checkIfNotEmpty() {
-    let flag = true;
+  function validateForm() {
+    let isValid = true;
 
-    if (studentNameInput.value === "") {
+    // Regex patterns
+    const nameRegex = /^[A-Za-z\s]+$/; // Allows only letters and spaces
+    const idRegex = /^\d+$/; // Allows only numbers
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // A standard email format
+    const contactRegex = /^\d{10}$/; // Allows exactly 10 numbers
+
+    // Validate Name
+    if (!nameRegex.test(studentNameInput.value)) {
+      studentNameInputError.textContent =
+        "Please enter a valid name (letters only)";
       studentNameInputError.style.display = "block";
-      flag = false;
+      isValid = false;
     } else {
       studentNameInputError.style.display = "none";
     }
 
-    if (studentIdInput.value === "") {
+    // Validate ID
+    if (!idRegex.test(studentIdInput.value)) {
+      studentIdInputError.textContent =
+        "Please enter a valid ID (numbers only)";
       studentIdInputError.style.display = "block";
-      flag = false;
+      isValid = false;
     } else {
       studentIdInputError.style.display = "none";
     }
 
-    if (emailInput.value === "") {
+    // Validate Email
+    if (!emailRegex.test(emailInput.value)) {
+      emailInputError.textContent = "Please enter a valid email address";
       emailInputError.style.display = "block";
-      flag = false;
+      isValid = false;
     } else {
       emailInputError.style.display = "none";
     }
 
-    if (contactInput.value === "") {
+    // Validate Contact Number
+    if (!contactRegex.test(contactInput.value)) {
+      contactInputError.textContent =
+        "Please enter a valid 10-digit contact number";
       contactInputError.style.display = "block";
-      flag = false;
+      isValid = false;
     } else {
       contactInputError.style.display = "none";
     }
 
-    return flag;
+    return isValid;
   }
 
   function isIdDuplicate(id) {
@@ -212,5 +238,18 @@ window.onload = function () {
       if (obj.id === id) return true;
     }
     return false;
+  }
+
+  // This new function will manage the scrollbar
+  function updateScrollbar() {
+    // Find the container that holds our table
+    const studentsContainer = document.getElementById("studentsContainer");
+
+    // Check if the number of students is more than 5 (you can change this number)
+    if (students.length > 5) {
+      studentsContainer.style.overflowY = "auto"; // Show scrollbar
+    } else {
+      studentsContainer.style.overflowY = "hidden"; // Hide scrollbar
+    }
   }
 };
