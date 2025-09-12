@@ -1,251 +1,216 @@
-// wait until the page is fully loaded before running the code
-window.onload = function() {
-    // get all necessary elements from the HTML
-    var studentForm = document.getElementById('studentForm');
-    var studentsList = document.getElementById('studentsList');
-    var studentsContainer = document.getElementById('studentsContainer');
-    
-    var studentNameInput = document.getElementById('studentName');
-    var studentIdInput = document.getElementById('studentId');
-    var emailInput = document.getElementById('email');
-    var contactInput = document.getElementById('contact');
-    
-    var nameError = document.getElementById('nameError');
-    var idError = document.getElementById('idError');
-    var emailError = document.getElementById('emailError');
-    var contactError = document.getElementById('contactError');
-    
-    // variables to track editing state
-    var isEditing = false;
-    var editId = null;
-    
-    // load students and display them when page starts
-    loadStudents();
-    updateScrollbar();
-    
-    // handle form submit
-    studentForm.onsubmit = function(e) {
-        e.preventDefault();
-        
-        if (validateForm()) {
-            var student = {
-                name: studentNameInput.value.trim(),
-                id: studentIdInput.value.trim(),
-                email: emailInput.value.trim(),
-                contact: contactInput.value.trim()
-            };
-            
-            if (isEditing) {
-                updateStudent(editId, student);
-            } else {
-                addStudent(student);
-            }
-            
-            resetForm();
-        }
-    };
-    
-    // validate the form inputs
-    function validateForm() {
-        var isValid = true;
-        
-        // validate name (only letters and spaces)
-        var name = studentNameInput.value.trim();
-        if (name === "" || !/^[A-Za-z\s]+$/.test(name)) {
-            nameError.style.display = "block";
-            isValid = false;
-        } else {
-            nameError.style.display = "none";
-        }
-        
-        // validate ID (only numbers)
-        var id = studentIdInput.value.trim();
-        if (id === "" || !/^\d+$/.test(id)) {
-            idError.style.display = "block";
-            isValid = false;
-        } else {
-            idError.style.display = "none";
-        }
-        
-        // validate email format
-        var email = emailInput.value.trim();
-        if (email === "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            emailError.style.display = "block";
-            isValid = false;
-        } else {
-            emailError.style.display = "none";
-        }
-        
-        // validate contact number (exactly 10 digits)
-        var contact = contactInput.value.trim();
-        if (contact === "" || !/^\d{10}$/.test(contact)) {
-            contactError.style.display = "block";
-            isValid = false;
-        } else {
-            contactError.style.display = "none";
-        }
-        
-        return isValid;
+// This makes sure our script runs after the whole page is loaded
+window.onload = function () {
+  console.log("App started!");
+
+  // --- SELECT THE HTML ELEMENTS ---
+  // The form itself
+  const studentForm = document.getElementById("studentForm");
+  // The table body where we will show students
+  const studentsList = document.getElementById("studentsList");
+
+  // All the input boxes
+  const studentNameInput = document.getElementById("studentName");
+  const studentIdInput = document.getElementById("studentId");
+  const emailInput = document.getElementById("email");
+  const contactInput = document.getElementById("contact");
+
+  // error elements
+
+  const studentNameInputError = document.getElementById("nameError");
+  const studentIdInputError = document.getElementById("idError");
+  const emailInputError = document.getElementById("emailError");
+  const contactInputError = document.getElementById("contactError");
+
+  // to change it between add or edit
+  const submitButton = document.querySelector(".btn-primary");
+
+  // student array to store array of student object
+  let students = [];
+  students = getStudentsFromStorage();
+
+  displayStudents(); // this will load any previous students we saved in local memory
+
+  // --- State variables to manage editing ---
+  let isEditing = false;
+  let studentIdToEdit = null;
+
+  // below are 2 helper functions to just save the objects in browser local storage
+
+  function saveStudentsToStorage(studentsToSave) {
+    // localStorage can only store strings.
+    // JSON.stringify() converts our array of objects into a string.
+    localStorage.setItem("students", JSON.stringify(studentsToSave));
+  }
+
+  function getStudentsFromStorage() {
+    const storedStudents = localStorage.getItem("students");
+    // If we found something in storage, JSON.parse() converts it back
+    // from a string into a real array. Otherwise, we start with an empty array.
+    if (storedStudents) {
+      return JSON.parse(storedStudents);
+    } else {
+      return [];
     }
-    
-    // add a new student
-    function addStudent(student) {
-        var students = getStudentsFromStorage();
-        
-        // check if ID already exists
-        for (var i = 0; i < students.length; i++) {
-            if (students[i].id === student.id) {
-                alert("Student ID already exists!");
-                return;
-            }
+  }
+
+  function displayStudents() {
+    // First, clear the table so we don't get duplicates
+    studentsList.innerHTML = "";
+
+    // Now, loop through each student in our 'students' array
+    students.forEach(function (student) {
+      // For each student, create a new table row element
+      const row = document.createElement("tr");
+
+      // Set the HTML inside that new row.
+      // Using backticks (`) makes it easy to insert variables like ${student.name}
+      row.innerHTML = `
+                <td>${student.name}</td>
+                <td>${student.id}</td>
+                <td>${student.email}</td>
+                <td>${student.contact}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-edit" data-id="${student.id}">Edit</button>
+                        <button class="btn-delete" data-id="${student.id}">Delete</button>
+                    </div>
+                </td>
+            `;
+
+      // Finally, add this new row to the table body in the HTML
+      studentsList.appendChild(row);
+    });
+  }
+
+  // --- 2. LISTEN FOR FORM SUBMISSION ---
+  studentForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const isFormValid = checkIfNotEmpty();
+    if (!isFormValid) {
+      // If the form is not valid, stop the function right here.
+      return;
+    }
+
+    const idValue = studentIdInput.value;
+    if (isIdDuplicate(idValue)) {
+      alert("Error: A student with this ID already exists!");
+      return; // Stop the function
+    }
+
+    if (isEditing) {
+      // --- LOGIC FOR UPDATING A STUDENT ---
+      // Find the student in the array and update their details
+
+      students = students.map(function (student) {
+        if (student.id === studentIdToEdit) {
+          // This is the student we want to update. Return a new object with the new values.
+          return {
+            name: studentNameInput.value,
+            id: studentIdInput.value,
+            email: emailInput.value,
+            contact: contactInput.value,
+          };
         }
-        
-        students.push(student);
+        // Otherwise, return the student unchanged
+        return student;
+      });
+
+      // Reset the state back to "add mode"
+      isEditing = false;
+      studentIdToEdit = null;
+      submitButton.textContent = "Register Student";
+    } else {
+      // --- LOGIC FOR ADDING A NEW STUDENT (old code) ---
+      const newStudent = {
+        name: studentNameInput.value,
+        id: studentIdInput.value,
+        email: emailInput.value,
+        contact: contactInput.value,
+      };
+      students.push(newStudent);
+    }
+
+    saveStudentsToStorage(students);
+    displayStudents();
+    studentForm.reset();
+  });
+
+  //  Add listener for delete or edit clicks on the table ---
+  studentsList.addEventListener("click", function (event) {
+    // Handle DELETE clicks
+    if (event.target.classList.contains("btn-delete")) {
+      if (confirm("Are you sure you want to delete this student?")) {
+        const studentIdToDelete = event.target.getAttribute("data-id");
+        students = students.filter(function (student) {
+          return student.id !== studentIdToDelete;
+        });
         saveStudentsToStorage(students);
-        renderStudents();
-        updateScrollbar();
+        displayStudents();
+      }
     }
-    
-    // update an existing student
-    function updateStudent(oldId, updatedStudent) {
-        var students = getStudentsFromStorage();
-        
-        // find student by ID
-        for (var i = 0; i < students.length; i++) {
-            if (students[i].id === oldId) {
-                // if ID changed, check if new ID already exists
-                if (oldId !== updatedStudent.id) {
-                    for (var j = 0; j < students.length; j++) {
-                        if (students[j].id === updatedStudent.id) {
-                            alert("Student ID already exists!");
-                            return;
-                        }
-                    }
-                }
-                
-                // update student details
-                students[i] = updatedStudent;
-                saveStudentsToStorage(students);
-                renderStudents();
-                updateScrollbar();
-                break;
-            }
-        }
-        
-        isEditing = false;
-        editId = null;
+
+    // Handle EDIT clicks
+    if (event.target.classList.contains("btn-edit")) {
+      const studentId = event.target.getAttribute("data-id"); // here we get the id to edit
+
+      // Find the student object in our array
+      const studentToEdit = students.find(function (student) {
+        // using that id, we stored whole object in a variable here
+        return student.id === studentId;
+      });
+
+      // Populate the form fields with the student's data
+      studentNameInput.value = studentToEdit.name;
+      studentIdInput.value = studentToEdit.id;
+      emailInput.value = studentToEdit.email;
+      contactInput.value = studentToEdit.contact;
+
+      // Switch to "edit mode"
+      isEditing = true;
+      studentIdToEdit = studentId; // here we updated the id to a variable we will use above
+      submitButton.textContent = "Update Student";
     }
-    
-    // delete a student
-    function deleteStudent(id) {
-        if (confirm("Are you sure you want to delete this student?")) {
-            var students = getStudentsFromStorage();
-            var newStudents = [];
-            
-            for (var i = 0; i < students.length; i++) {
-                if (students[i].id !== id) {
-                    newStudents.push(students[i]);
-                }
-            }
-            
-            saveStudentsToStorage(newStudents);
-            renderStudents();
-            updateScrollbar();
-        }
+  });
+
+  function checkIfNotEmpty() {
+    let flag = true;
+
+    if (studentNameInput.value === "") {
+      studentNameInputError.style.display = "block";
+      flag = false;
+    } else {
+      studentNameInputError.style.display = "none";
     }
-    
-    // edit a student
-    function editStudent(id) {
-        var students = getStudentsFromStorage();
-        
-        for (var i = 0; i < students.length; i++) {
-            if (students[i].id === id) {
-                studentNameInput.value = students[i].name;
-                studentIdInput.value = students[i].id;
-                emailInput.value = students[i].email;
-                contactInput.value = students[i].contact;
-                
-                isEditing = true;
-                editId = id;
-                
-                document.querySelector(".btn-primary").textContent = "Update Student";
-                break;
-            }
-        }
+
+    if (studentIdInput.value === "") {
+      studentIdInputError.style.display = "block";
+      flag = false;
+    } else {
+      studentIdInputError.style.display = "none";
     }
-    
-    // render students in the table
-    function renderStudents() {
-        var students = getStudentsFromStorage();
-        
-        if (students.length === 0) {
-            studentsList.innerHTML = "<tr><td colspan='5' class='no-data'>No students registered yet</td></tr>";
-            return;
-        }
-        
-        var html = "";
-        for (var i = 0; i < students.length; i++) {
-            html += "<tr>";
-            html += "<td>" + students[i].name + "</td>";
-            html += "<td>" + students[i].id + "</td>";
-            html += "<td>" + students[i].email + "</td>";
-            html += "<td>" + students[i].contact + "</td>";
-            html += "<td>";
-            html += "<div class='action-buttons'>";
-            html += "<button class='btn-edit' onclick=\"editStudent('" + students[i].id + "')\">Edit</button>";
-            html += "<button class='btn-delete' onclick=\"deleteStudent('" + students[i].id + "')\">Delete</button>";
-            html += "</div>";
-            html += "</td>";
-            html += "</tr>";
-        }
-        
-        studentsList.innerHTML = html;
+
+    if (emailInput.value === "") {
+      emailInputError.style.display = "block";
+      flag = false;
+    } else {
+      emailInputError.style.display = "none";
     }
-    
-    // load students on page start
-    function loadStudents() {
-        renderStudents();
+
+    if (contactInput.value === "") {
+      contactInputError.style.display = "block";
+      flag = false;
+    } else {
+      contactInputError.style.display = "none";
     }
-    
-    // get students from localStorage
-    function getStudentsFromStorage() {
-        var data = localStorage.getItem('students');
-        if (data) {
-            return JSON.parse(data);
-        } else {
-            return [];
-        }
+
+    return flag;
+  }
+
+  function isIdDuplicate(id) {
+    for (let obj of students) {
+      if (obj.id === id) return true;
     }
-    
-    // save students to localStorage
-    function saveStudentsToStorage(students) {
-        localStorage.setItem('students', JSON.stringify(students));
-    }
-    
-    // reset the form
-    function resetForm() {
-        studentForm.reset();
-        isEditing = false;
-        editId = null;
-        document.querySelector(".btn-primary").textContent = "Register Student";
-        
-        nameError.style.display = "none";
-        idError.style.display = "none";
-        emailError.style.display = "none";
-        contactError.style.display = "none";
-    }
-    
-    // check if scrollbar is needed
-    function updateScrollbar() {
-        var students = getStudentsFromStorage();
-        if (students.length > 5) {
-            studentsContainer.style.overflowY = "auto";
-        } else {
-            studentsContainer.style.overflowY = "hidden";
-        }
-    }
-    
-    // expose edit and delete functions to global scope
-    window.editStudent = editStudent;
-    window.deleteStudent = deleteStudent;
+    return false;
+  }
 };

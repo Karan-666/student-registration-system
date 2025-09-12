@@ -1,12 +1,17 @@
 :root {
-    /* define color variables for easy reuse */
-    --primary-color: #3498db;
-    --secondary-color: #2980b9;
+    /* define color variables for the dark theme */
+    --primary-color: #4EDCD8;
+    --secondary-color: teal;
     --accent-color: #e74c3c;
-    --light-color: #ecf0f1;
-    --dark-color: #2c3e50;
     --success-color: #27ae60;
     --warning-color: #f39c12;
+    
+    /* Dark theme specific colors */
+    --bg-dark-primary: #2c3e50;      /* Main dark background */
+    --bg-dark-secondary: #000000;
+    /* --bg-dark-secondary: #34495e;    Lighter background for cards/sections */
+    --text-light-primary: #ecf0f1;   /* Main light text color */
+    --border-color: #4a627a;         /* Border color for dark theme */
 }
 
 * {
@@ -18,8 +23,8 @@
 }
 
 body {
-    background-color: #f5f7fa; /* light background color */
-    color: #333; /* text color */
+    background-color: var(--bg-dark-primary); /* dark background color */
+    color: var(--text-light-primary); /* light text color */
     line-height: 1.6; /* spacing between lines */
 }
 
@@ -38,12 +43,16 @@ header {
     text-align: center;
     border-radius: 8px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 header h1 {
     font-size: 2.5rem; /* bigger title */
     margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #4EDCD8, #3b82f6);
+    /* This creates a 1-pixel wide black outline */
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
 }
 
 header p {
@@ -63,10 +72,10 @@ header p {
     /* sections styling */
     flex: 1;
     min-width: 300px;
-    background: white;
+    background: var(--bg-dark-secondary);
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .section-title {
@@ -74,7 +83,7 @@ header p {
     color: var(--primary-color);
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--light-color);
+    border-bottom: 2px solid var(--border-color);
 }
 
 .form-group {
@@ -85,16 +94,18 @@ label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: var(--dark-color);
+    color: var(--text-light-primary);
 }
 
 input {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 1rem;
     transition: border 0.3s;
+    background-color: var(--bg-dark-primary);
+    color: var(--text-light-primary);
 }
 
 input:focus {
@@ -122,7 +133,7 @@ button {
 
 .btn-primary {
     background-color: var(--primary-color);
-    color: white;
+    color: black;
 }
 
 .btn-primary:hover {
@@ -158,16 +169,16 @@ button {
 .students-table td {
     padding: 0.8rem;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .students-table th {
-    background-color: var(--light-color);
+    background-color: var(--bg-dark-primary);
     font-weight: 600;
 }
 
 .students-table tr:hover {
-    background-color: rgba(52, 152, 219, 0.05); /* highlight on hover */
+    background-color: rgba(52, 152, 219, 0.1); /* highlight on hover */
 }
 
 .action-buttons {
@@ -178,14 +189,14 @@ button {
     max-height: 400px;
     overflow-y: auto; /* enable scroll when needed */
     margin-top: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
 .no-data {
     text-align: center;
     padding: 2rem;
-    color: #7f8c8d;
+    color: #95a5a6;
 }
 
 /* Responsive styles for mobile and tablet */
@@ -221,4 +232,19 @@ button {
     .display-section {
         flex: 2;
     }
+}
+
+/* Target browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    /* Use a large inset box-shadow to override the background color. */
+    box-shadow: 0 0 0 1000px var(--bg-dark-primary) inset !important;
+
+    /* Force the text color to be light */
+    -webkit-text-fill-color: var(--text-light-primary) !important;
+    
+    /* Prevents a brief color flash on transition */
+    transition: background-color 5000s ease-in-out 0s;
 }
