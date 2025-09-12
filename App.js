@@ -82,7 +82,7 @@ window.onload = function () {
     });
   }
 
-  // --- 2. LISTEN FOR FORM SUBMISSION ---
+  // LISTEN FOR FORM SUBMISSION ---
   studentForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
